@@ -1,1 +1,466 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>団体利用区分のご案内</title>
+
+<style>
+:root {
+  --navy: #16324f;
+  --blue: #2563a6;
+  --light: #f3f7fa;
+  --line: #dce5ed;
+  --text: #293847;
+  --muted: #718096;
+  --green: #16845b;
+  --red: #c83b3b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--light);
+  color: var(--text);
+  font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+  line-height: 1.7;
+}
+
+header {
+  background: linear-gradient(135deg,#16324f,#326b8b);
+  color: white;
+  padding: 30px 20px;
+}
+
+.header-inner {
+  max-width: 700px;
+  margin: auto;
+}
+
+header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+header p {
+  font-size: 13px;
+  margin: 8px 0 0;
+  opacity: .9;
+}
+
+.container {
+  max-width: 700px;
+  margin: 28px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 5px 18px rgba(0,0,0,.05);
+}
+
+.step {
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.progress {
+  height: 8px;
+  background: #e8edf2;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0 28px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--blue);
+  transition: width .3s;
+}
+
+h2 {
+  font-size: 21px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.help {
+  font-size: 14px;
+  color: var(--muted);
+  background: #f5f8fb;
+  padding: 13px;
+  border-radius: 9px;
+  margin: 15px 0 22px;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.option {
+  width: 100%;
+  padding: 19px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  text-align: left;
+  font-size: 16px;
+  color: var(--text);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.option:hover {
+  background: #eef5fa;
+  border-color: var(--blue);
+}
+
+.option strong {
+  display: block;
+}
+
+.option small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 9px;
+  background: #eaf0f5;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.result {
+  text-align: center;
+  padding: 25px 10px;
+}
+
+.result h2 {
+  font-size: 27px;
+  margin: 12px 0;
+}
+
+.result.profit h2 { color: var(--red); }
+.result.nonprofit h2 { color: var(--green); }
+
+.result-icon {
+  font-size: 45px;
+}
+
+.result-description {
+  background: #f5f8fa;
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 20px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.result-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 22px;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 20px;
+}
+
+@media(max-width:600px) {
+  header { padding: 23px 18px; }
+  header h1 { font-size: 21px; }
+  .container { margin-top: 18px; }
+  .card { padding: 21px 17px; }
+  h2 { font-size: 19px; }
+  .option { padding: 17px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>団体利用区分のご案内</h1>
+    <p>いくつかの質問にお答えいただくと、利用区分をご確認いただけます。</p>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card" id="app">
+    <div id="questionArea"></div>
+    <div id="resultArea" hidden></div>
+  </div>
+</main>
+
+<footer>
+  都城市中心市街地中核施設
+</footer>
+
+<script>
+
+const QUESTIONS = {
+
+q1: {
+  step: 1,
+  progress: 20,
+  title: "利用する団体の種類を選択してください",
+  options: [
+    {
+      title: "営利企業",
+      desc: "株式会社、合同会社、有限会社など",
+      next: "profit"
+    },
+    {
+      title: "個人事業主・士業事務所",
+      desc: "事業として活動している方",
+      next: "profit"
+    },
+    {
+      title: "一般社団法人・一般財団法人",
+      next: "q2"
+    },
+    {
+      title: "その他の非営利法人・公的機関",
+      desc: "NPO法人、社会福祉法人、学校法人、宗教法人、国・地方自治体など",
+      next: "nonprofit"
+    },
+    {
+      title: "任意団体・市民サークル・個人",
+      desc: "市民活動、趣味のサークル、ボランティア活動など",
+      next: "q4_1"
+    }
+  ]
+},
+
+q2: {
+  step: 2,
+  progress: 40,
+  title: "税法上の非営利型法人に該当しますか？",
+  help: "定款などで非営利型法人の要件を満たしていることを確認できる場合は「はい」を選択してください。",
+  options: [
+    { title: "はい", next: "q3" },
+    { title: "いいえ・確認できない", next: "profit" }
+  ]
+},
+
+q3: {
+  step: 3,
+  progress: 60,
+  title: "今回の施設利用に営業・ビジネス行為が含まれますか？",
+  help: "例えば、商品販売、営業、広告・宣伝、企業PR、勧誘、商談、参加費を徴収する事業セミナーなどです。",
+  options: [
+    { title: "はい", next: "profit" },
+    { title: "いいえ", next: "nonprofit" }
+  ]
+},
+
+q4_1: {
+  step: 2,
+  progress: 40,
+  title: "講師・先生本人、または教室・学校などの関係者が申請者ですか？",
+  options: [
+    { title: "はい", next: "profit" },
+    { title: "いいえ", next: "q4_2" }
+  ]
+},
+
+q4_2: {
+  step: 3,
+  progress: 60,
+  title: "参加者から料金を徴収しますか？",
+  options: [
+    { title: "はい", next: "q4_3" },
+    { title: "いいえ", next: "q4_4" }
+  ]
+},
+
+q4_3: {
+  step: 4,
+  progress: 80,
+  title: "1人あたり500円以下で、当日使用する材料費・教材費の実費のみですか？",
+  help: "講師への謝金、運営費、利益などを含む場合は「いいえ」を選択してください。",
+  options: [
+    { title: "はい", next: "q4_4" },
+    { title: "いいえ", next: "profit" }
+  ]
+},
+
+q4_4: {
+  step: 4,
+  progress: 80,
+  title: "販売・営業・企業PR・勧誘などを行いますか？",
+  options: [
+    { title: "はい", next: "profit" },
+    { title: "いいえ", next: "nonprofit" }
+  ]
+}
+
+};
+
+let current = "q1";
+let history = [];
+
+const questionArea = document.getElementById("questionArea");
+const resultArea = document.getElementById("resultArea");
+
+function renderQuestion(id) {
+
+  current = id;
+
+  const q = QUESTIONS[id];
+
+  resultArea.hidden = true;
+  questionArea.hidden = false;
+
+  questionArea.innerHTML = `
+    <div class="step">STEP ${q.step}</div>
+
+    <div class="progress">
+      <div class="progress-bar"
+        style="width:${q.progress}%"></div>
+    </div>
+
+    <h2>${q.title}</h2>
+
+    ${q.help ? `<div class="help">${q.help}</div>` : ""}
+
+    <div class="options">
+      ${q.options.map((o,i) => `
+        <button class="option" data-index="${i}">
+          <strong>${o.title}</strong>
+          ${o.desc ? `<small>${o.desc}</small>` : ""}
+        </button>
+      `).join("")}
+    </div>
+
+    <div class="actions">
+      ${history.length ?
+        `<button class="action-btn" id="backBtn">← 前の質問に戻る</button>`
+        : ""}
+      <button class="action-btn" id="resetBtn">最初からやり直す</button>
+    </div>
+  `;
+
+  questionArea.querySelectorAll(".option").forEach(btn => {
+    btn.onclick = () => {
+      const selected = q.options[Number(btn.dataset.index)];
+      history.push(id);
+
+      if (selected.next === "profit") {
+        showResult("profit");
+      } else if (selected.next === "nonprofit") {
+        showResult("nonprofit");
+      } else {
+        renderQuestion(selected.next);
+      }
+    };
+  });
+
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) {
+    backBtn.onclick = goBack;
+  }
+
+  document.getElementById("resetBtn").onclick = resetAll;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function goBack() {
+  if (!history.length) return;
+
+  const previous = history.pop();
+  renderQuestion(previous);
+}
+
+function resetAll() {
+  history = [];
+  renderQuestion("q1");
+}
+
+function showResult(type) {
+
+  questionArea.hidden = true;
+  resultArea.hidden = false;
+
+  const isProfit = type === "profit";
+
+  resultArea.innerHTML = `
+    <div class="progress">
+      <div class="progress-bar" style="width:100%"></div>
+    </div>
+
+    <div class="result ${type}">
+
+      <div class="result-icon">
+        ${isProfit ? "🏢" : "🌿"}
+      </div>
+
+      <div class="step">判定結果</div>
+
+      <h2>
+        ${isProfit
+          ? "営利目的等に該当"
+          : "営利目的等以外に該当"}
+      </h2>
+
+      <div class="result-description">
+        <strong>今回の利用区分</strong>
+        <p>
+          ${isProfit
+            ? "営利料金の区分となります。"
+            : "非営利料金の区分となります。"}
+        </p>
+      </div>
+
+      <p class="result-note">
+        この結果は、ご回答いただいた内容に基づく目安です。
+        実際の利用内容や申請内容によって区分が異なる場合があります。
+        詳細は施設窓口へお問い合わせください。
+      </p>
+
+      <div class="actions" style="justify-content:center">
+        <button class="action-btn" onclick="resetAll()">
+          最初からやり直す
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+renderQuestion("q1");
+
+</script>
+
+</body>
+</html>
+
